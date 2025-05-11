@@ -305,6 +305,15 @@
                 </div>
                 
                 <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category" required>
+                        <option value="">Select a category</option>
+                        <option value="savory">Savory</option>
+                        <option value="dessert">Dessert</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
                     <label for="servings">Servings</label>
                     <input type="number" id="servings" value="4" min="1" required>
                 </div>
@@ -325,12 +334,22 @@
 
         <div id="view-recipes" class="section">
             <h2>My Recipes</h2>
-            <div class="metric-converter">
-                <label>Metric Conversion:</label>
-                <select id="metric-system">
-                    <option value="imperial">Imperial (cups, pounds, etc.)</option>
-                    <option value="metric">Metric (liters, kilograms, etc.)</option>
-                </select>
+            <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px;">
+                <div class="metric-converter">
+                    <label>Metric Conversion:</label>
+                    <select id="metric-system">
+                        <option value="imperial">Imperial (cups, pounds, etc.)</option>
+                        <option value="metric">Metric (liters, kilograms, etc.)</option>
+                    </select>
+                </div>
+                <div class="metric-converter">
+                    <label>Filter by Category:</label>
+                    <select id="category-filter">
+                        <option value="all">All Recipes</option>
+                        <option value="savory">Savory</option>
+                        <option value="dessert">Dessert</option>
+                    </select>
+                </div>
             </div>
             <div id="recipes-list"></div>
         </div>
@@ -422,6 +441,7 @@
             const recipe = {
                 id: Date.now(),
                 name: document.getElementById('recipe-name').value,
+                category: document.getElementById('category').value,
                 servings: parseInt(document.getElementById('servings').value),
                 ingredients: parseIngredients(document.getElementById('ingredients').value),
                 instructions: document.getElementById('instructions').value || ''
@@ -480,17 +500,25 @@
         // Render recipes with checkboxes and serving adjustments
         function renderRecipes() {
             const container = document.getElementById('recipes-list');
-            if (recipes.length === 0) {
-                container.innerHTML = '<p class="empty-state">No recipes yet. Add your first recipe!</p>';
+            const categoryFilter = document.getElementById('category-filter').value;
+            
+            let filteredRecipes = recipes;
+            if (categoryFilter !== 'all') {
+                filteredRecipes = recipes.filter(recipe => recipe.category === categoryFilter);
+            }
+            
+            if (filteredRecipes.length === 0) {
+                container.innerHTML = '<p class="empty-state">No recipes in this category. Add your first recipe!</p>';
                 return;
             }
             
-            container.innerHTML = recipes.map(recipe => `
+            container.innerHTML = filteredRecipes.map(recipe => `
                 <div class="recipe-card">
                     <div class="recipe-header">
                         <div>
                             <input type="checkbox" class="recipe-checkbox" data-recipe-id="${recipe.id}" ${recipe.selected ? 'checked' : ''}>
                             <span class="recipe-title">${recipe.name}</span>
+                            <span style="margin-left: 10px; padding: 3px 8px; background: ${recipe.category === 'savory' ? '#e8f4fd' : '#fef3e8'}; border-radius: 12px; font-size: 0.8em; color: ${recipe.category === 'savory' ? '#2575fc' : '#f39c12'};">${recipe.category || 'uncategorized'}</span>
                         </div>
                         <div class="serving-control">
                             <label>Servings:</label>
@@ -775,9 +803,13 @@
             localStorage.setItem('recipes', JSON.stringify(recipes));
         }
 
-        // Metric system toggle
+        // Metric system and category filter
         document.getElementById('metric-system').addEventListener('change', (e) => {
             metricSystem = e.target.value;
+            renderRecipes();
+        });
+        
+        document.getElementById('category-filter').addEventListener('change', (e) => {
             renderRecipes();
         });
 
