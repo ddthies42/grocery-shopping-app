@@ -1,0 +1,10 @@
+[
+    {
+      "name": "Thit kho tau trung",
+      "defaultServings": 4,
+      "ingredients": [
+        { "name": "Pork belly", "amount": 500, "unit": "g" },
+        { "name": "Eggs", "amount": 4, "unit": "pcs" }
+      ]
+    }
+  ]
