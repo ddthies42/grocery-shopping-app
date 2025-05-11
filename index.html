@@ -1,15 +1,761 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Grocery App</title>
-  <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grocery Shopping App</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 2rem;
+            gap: 10px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: #ddd;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        .tab.active {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Recipe form styles */
+        .recipe-form {
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+
+        button:hover {
+            background: #45a049;
+        }
+
+        button.secondary {
+            background: #008CBA;
+        }
+
+        button.danger {
+            background: #f44336;
+        }
+
+        /* Recipe list styles */
+        .recipe-list {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .recipe-card {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 1rem;
+            cursor: pointer;
+        }
+
+        .recipe-card.selected {
+            background: #e8f5e9;
+            border-color: #4CAF50;
+        }
+
+        .recipe-card h3 {
+            color: #4CAF50;
+            margin-bottom: 10px;
+        }
+
+        .ingredient-group {
+            margin-bottom: 15px;
+        }
+
+        .ingredient-group h4 {
+            margin-bottom: 5px;
+            font-size: 1.1em;
+            color: #666;
+        }
+
+        .ingredient {
+            display: flex;
+            align-items: center;
+            padding: 5px 0;
+        }
+
+        .ingredient input[type="checkbox"] {
+            margin-right: 10px;
+            width: auto;
+        }
+
+        .ingredient label {
+            flex: 1;
+            margin: 0;
+            font-weight: normal;
+        }
+
+        .convert-btn {
+            margin-left: 10px;
+            padding: 4px 8px;
+            font-size: 0.8em;
+        }
+
+        /* Shopping list styles */
+        .shopping-list {
+            background: #f9f9f9;
+            padding: 1rem;
+            border-radius: 4px;
+        }
+
+        .shopping-list h3 {
+            margin-bottom: 1rem;
+            color: #4CAF50;
+        }
+
+        .shopping-list ul {
+            list-style: none;
+        }
+
+        .shopping-list li {
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .serving-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .import-export {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #ddd;
+        }
+
+        .import-export textarea {
+            height: 150px;
+        }
+
+        .servings-input {
+            width: 60px;
+            display: inline-block;
+        }
+    </style>
 </head>
 <body>
-  <h1>My Grocery Recipes</h1>
-  <div id="recipe-list"></div>
-  <button onclick="showAddRecipeForm()">+ Add Recipe</button>
-  <div id="add-recipe-form" style="display:none;"></div>
-  <script src="app.js"></script>
+    <div class="container">
+        <header>
+            <h1>Grocery Shopping App</h1>
+            <p>Manage recipes, plan meals, and generate shopping lists</p>
+        </header>
+
+        <div class="tabs">
+            <div class="tab active" data-tab="recipes">Recipes</div>
+            <div class="tab" data-tab="meal-plan">Meal Plan</div>
+            <div class="tab" data-tab="shopping-list">Shopping List</div>
+            <div class="tab" data-tab="import-export">Import/Export</div>
+        </div>
+
+        <div id="recipes" class="tab-content active">
+            <h2>Manage Recipes</h2>
+            
+            <div class="recipe-form">
+                <h3>Add New Recipe</h3>
+                <form id="recipeForm">
+                    <div class="form-group">
+                        <label for="recipeName">Recipe Name:</label>
+                        <input type="text" id="recipeName" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="recipeServings">Default Servings:</label>
+                        <input type="number" id="recipeServings" min="1" value="4" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="recipeInstructions">Instructions:</label>
+                        <textarea id="recipeInstructions"></textarea>
+                    </div>
+                    
+                    <div id="ingredientGroups">
+                        <h4>Ingredients</h4>
+                        <div class="ingredient-group" data-group="0">
+                            <input type="text" placeholder="Group name (e.g., 'For the sauce')" class="group-name">
+                            <div class="ingredients-list">
+                                <div class="ingredient-item">
+                                    <input type="text" placeholder="Amount" class="ingredient-amount" style="width: 80px;">
+                                    <select class="ingredient-unit" style="width: 100px;">
+                                        <option value="g">g</option>
+                                        <option value="kg">kg</option>
+                                        <option value="ml">ml</option>
+                                        <option value="l">l</option>
+                                        <option value="cup" selected>cup</option>
+                                        <option value="tbsp">tbsp</option>
+                                        <option value="tsp">tsp</option>
+                                        <option value="oz">oz</option>
+                                        <option value="lb">lb</option>
+                                        <option value="item">item</option>
+                                    </select>
+                                    <input type="text" placeholder="Ingredient name" class="ingredient-name">
+                                    <button type="button" class="remove-ingredient danger">Remove</button>
+                                </div>
+                            </div>
+                            <button type="button" class="add-ingredient secondary">Add Ingredient</button>
+                        </div>
+                    </div>
+                    
+                    <button type="button" id="addGroup" class="secondary">Add Ingredient Group</button>
+                    <br><br>
+                    <button type="submit">Save Recipe</button>
+                </form>
+            </div>
+            
+            <div class="recipe-list" id="recipeList">
+                <!-- Recipes will be displayed here -->
+            </div>
+        </div>
+
+        <div id="meal-plan" class="tab-content">
+            <h2>Select Recipes for Meal Plan</h2>
+            <div id="mealPlanRecipes" class="recipe-list">
+                <!-- Recipe selection for meal planning -->
+            </div>
+        </div>
+
+        <div id="shopping-list" class="tab-content">
+            <h2>Shopping List</h2>
+            <button id="generateShoppingList">Generate Shopping List</button>
+            <div id="shoppingListContent" class="shopping-list">
+                <!-- Shopping list will be generated here -->
+            </div>
+        </div>
+
+        <div id="import-export" class="tab-content">
+            <h2>Import/Export Data</h2>
+            <div class="import-export">
+                <h3>Export Recipes</h3>
+                <button id="exportData">Export All Recipes</button>
+                <textarea id="exportText" readonly></textarea>
+                
+                <h3>Import Recipes</h3>
+                <textarea id="importText" placeholder="Paste your recipe data here..."></textarea>
+                <button id="importData">Import Recipes</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Recipe management functionality
+        let recipes = JSON.parse(localStorage.getItem('recipes') || '[]');
+        let selectedRecipes = JSON.parse(localStorage.getItem('selectedRecipes') || '[]');
+
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab).classList.add('active');
+                
+                if (tab.dataset.tab === 'meal-plan') {
+                    displayMealPlanRecipes();
+                }
+            });
+        });
+
+        // Add ingredient functionality
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('add-ingredient')) {
+                const group = e.target.closest('.ingredient-group');
+                const ingredientsList = group.querySelector('.ingredients-list');
+                const newIngredient = document.createElement('div');
+                newIngredient.className = 'ingredient-item';
+                newIngredient.innerHTML = `
+                    <input type="text" placeholder="Amount" class="ingredient-amount" style="width: 80px;">
+                    <select class="ingredient-unit" style="width: 100px;">
+                        <option value="g">g</option>
+                        <option value="kg">kg</option>
+                        <option value="ml">ml</option>
+                        <option value="l">l</option>
+                        <option value="cup" selected>cup</option>
+                        <option value="tbsp">tbsp</option>
+                        <option value="tsp">tsp</option>
+                        <option value="oz">oz</option>
+                        <option value="lb">lb</option>
+                        <option value="item">item</option>
+                    </select>
+                    <input type="text" placeholder="Ingredient name" class="ingredient-name">
+                    <button type="button" class="remove-ingredient danger">Remove</button>
+                `;
+                ingredientsList.appendChild(newIngredient);
+            }
+            
+            if (e.target.classList.contains('remove-ingredient')) {
+                e.target.closest('.ingredient-item').remove();
+            }
+        });
+
+        // Add ingredient group
+        document.getElementById('addGroup').addEventListener('click', () => {
+            const groups = document.querySelectorAll('.ingredient-group');
+            const newGroupNum = groups.length;
+            const newGroup = document.createElement('div');
+            newGroup.className = 'ingredient-group';
+            newGroup.dataset.group = newGroupNum;
+            newGroup.innerHTML = `
+                <input type="text" placeholder="Group name (e.g., 'For the sauce')" class="group-name">
+                <div class="ingredients-list">
+                    <div class="ingredient-item">
+                        <input type="text" placeholder="Amount" class="ingredient-amount" style="width: 80px;">
+                        <select class="ingredient-unit" style="width: 100px;">
+                            <option value="g">g</option>
+                            <option value="kg">kg</option>
+                            <option value="ml">ml</option>
+                            <option value="l">l</option>
+                            <option value="cup" selected>cup</option>
+                            <option value="tbsp">tbsp</option>
+                            <option value="tsp">tsp</option>
+                            <option value="oz">oz</option>
+                            <option value="lb">lb</option>
+                            <option value="item">item</option>
+                        </select>
+                        <input type="text" placeholder="Ingredient name" class="ingredient-name">
+                        <button type="button" class="remove-ingredient danger">Remove</button>
+                    </div>
+                </div>
+                <button type="button" class="add-ingredient secondary">Add Ingredient</button>
+            `;
+            document.getElementById('ingredientGroups').appendChild(newGroup);
+        });
+
+        // Save recipe
+        document.getElementById('recipeForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('recipeName').value;
+            const servings = parseInt(document.getElementById('recipeServings').value);
+            const instructions = document.getElementById('recipeInstructions').value;
+            
+            const ingredientGroups = [];
+            document.querySelectorAll('.ingredient-group').forEach(group => {
+                const groupName = group.querySelector('.group-name').value || 'Ingredients';
+                const ingredients = [];
+                
+                group.querySelectorAll('.ingredient-item').forEach(item => {
+                    const amount = item.querySelector('.ingredient-amount').value;
+                    const unit = item.querySelector('.ingredient-unit').value;
+                    const ingredientName = item.querySelector('.ingredient-name').value;
+                    
+                    if (amount && ingredientName) {
+                        ingredients.push({ amount, unit, name: ingredientName });
+                    }
+                });
+                
+                if (ingredients.length > 0) {
+                    ingredientGroups.push({ groupName, ingredients });
+                }
+            });
+            
+            const recipe = {
+                id: Date.now(),
+                name,
+                servings,
+                instructions,
+                ingredientGroups
+            };
+            
+            recipes.push(recipe);
+            localStorage.setItem('recipes', JSON.stringify(recipes));
+            displayRecipes();
+            document.getElementById('recipeForm').reset();
+            
+            // Reset to single ingredient group
+            document.getElementById('ingredientGroups').innerHTML = `
+                <h4>Ingredients</h4>
+                <div class="ingredient-group" data-group="0">
+                    <input type="text" placeholder="Group name (e.g., 'For the sauce')" class="group-name">
+                    <div class="ingredients-list">
+                        <div class="ingredient-item">
+                            <input type="text" placeholder="Amount" class="ingredient-amount" style="width: 80px;">
+                            <select class="ingredient-unit" style="width: 100px;">
+                                <option value="g">g</option>
+                                <option value="kg">kg</option>
+                                <option value="ml">ml</option>
+                                <option value="l">l</option>
+                                <option value="cup" selected>cup</option>
+                                <option value="tbsp">tbsp</option>
+                                <option value="tsp">tsp</option>
+                                <option value="oz">oz</option>
+                                <option value="lb">lb</option>
+                                <option value="item">item</option>
+                            </select>
+                            <input type="text" placeholder="Ingredient name" class="ingredient-name">
+                            <button type="button" class="remove-ingredient danger">Remove</button>
+                        </div>
+                    </div>
+                    <button type="button" class="add-ingredient secondary">Add Ingredient</button>
+                </div>
+            `;
+        });
+
+        // Display recipes
+        function displayRecipes() {
+            const recipeList = document.getElementById('recipeList');
+            recipeList.innerHTML = '';
+            
+            recipes.forEach(recipe => {
+                const recipeCard = createRecipeCard(recipe, false);
+                recipeList.appendChild(recipeCard);
+            });
+        }
+
+        function createRecipeCard(recipe, forMealPlan = false) {
+            const card = document.createElement('div');
+            card.className = 'recipe-card';
+            if (forMealPlan && selectedRecipes.some(r => r.id === recipe.id)) {
+                card.classList.add('selected');
+            }
+            
+            let ingredientsHTML = '';
+            recipe.ingredientGroups.forEach(group => {
+                ingredientsHTML += `<div class="ingredient-group">
+                    <h4>${group.groupName}</h4>`;
+                
+                group.ingredients.forEach(ing => {
+                    const scaleAmount = forMealPlan ? (parseFloat(ing.amount) * (recipe.currentServings || recipe.servings) / recipe.servings).toFixed(2) : ing.amount;
+                    ingredientsHTML += `
+                        <div class="ingredient">
+                            <input type="checkbox" id="ing_${recipe.id}_${ing.name.replace(/\s/g, '_')}" ${ing.have ? 'checked' : ''}>
+                            <label for="ing_${recipe.id}_${ing.name.replace(/\s/g, '_')}">${scaleAmount} ${ing.unit} ${ing.name}</label>
+                            <button class="convert-btn secondary">Convert</button>
+                        </div>
+                    `;
+                });
+                
+                ingredientsHTML += '</div>';
+            });
+            
+            card.innerHTML = `
+                <h3>${recipe.name}</h3>
+                <div class="serving-control">
+                    <label>Servings:</label>
+                    ${forMealPlan ? `
+                        <button class="decrease-serving">-</button>
+                        <input type="number" class="servings-input" value="${recipe.currentServings || recipe.servings}" min="1">
+                        <button class="increase-serving">+</button>
+                    ` : `<span>${recipe.servings}</span>`}
+                </div>
+                ${ingredientsHTML}
+                <p><strong>Instructions:</strong> ${recipe.instructions}</p>
+                ${!forMealPlan ? `<button class="delete-recipe danger">Delete Recipe</button>` : ''}
+            `;
+            
+            if (!forMealPlan) {
+                card.querySelector('.delete-recipe').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    recipes = recipes.filter(r => r.id !== recipe.id);
+                    localStorage.setItem('recipes', JSON.stringify(recipes));
+                    displayRecipes();
+                });
+            } else {
+                card.addEventListener('click', () => {
+                    if (selectedRecipes.some(r => r.id === recipe.id)) {
+                        selectedRecipes = selectedRecipes.filter(r => r.id !== recipe.id);
+                        card.classList.remove('selected');
+                    } else {
+                        recipe.currentServings = recipe.servings;
+                        selectedRecipes.push(recipe);
+                        card.classList.add('selected');
+                    }
+                    localStorage.setItem('selectedRecipes', JSON.stringify(selectedRecipes));
+                });
+                
+                // Serving adjustment
+                const decreaseBtn = card.querySelector('.decrease-serving');
+                const increaseBtn = card.querySelector('.increase-serving');
+                const servingInput = card.querySelector('.servings-input');
+                
+                if (decreaseBtn) {
+                    decreaseBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (parseInt(servingInput.value) > 1) {
+                            servingInput.value = parseInt(servingInput.value) - 1;
+                            updateServings(recipe.id, parseInt(servingInput.value));
+                        }
+                    });
+                }
+                
+                if (increaseBtn) {
+                    increaseBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        servingInput.value = parseInt(servingInput.value) + 1;
+                        updateServings(recipe.id, parseInt(servingInput.value));
+                    });
+                }
+                
+                if (servingInput) {
+                    servingInput.addEventListener('change', (e) => {
+                        e.stopPropagation();
+                        updateServings(recipe.id, parseInt(e.target.value));
+                    });
+                }
+            }
+            
+            // Checkbox functionality
+            card.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                checkbox.addEventListener('change', (e) => {
+                    const ingredientName = e.target.nextElementSibling.textContent.split(' ').slice(2).join(' ');
+                    updateIngredientStatus(recipe.id, ingredientName, e.target.checked);
+                });
+            });
+            
+            // Conversion functionality
+            card.querySelectorAll('.convert-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const ingredientDiv = e.target.closest('.ingredient');
+                    const label = ingredientDiv.querySelector('label');
+                    const [amount, unit, ...nameParts] = label.textContent.split(' ');
+                    convertMeasurement(amount, unit, nameParts.join(' '), label);
+                });
+            });
+            
+            return card;
+        }
+
+        function updateServings(recipeId, newServings) {
+            const recipeIndex = selectedRecipes.findIndex(r => r.id === recipeId);
+            if (recipeIndex !== -1) {
+                selectedRecipes[recipeIndex].currentServings = newServings;
+                localStorage.setItem('selectedRecipes', JSON.stringify(selectedRecipes));
+                displayMealPlanRecipes();
+            }
+        }
+
+        function updateIngredientStatus(recipeId, ingredientName, have) {
+            recipes.forEach(recipe => {
+                if (recipe.id === recipeId) {
+                    recipe.ingredientGroups.forEach(group => {
+                        group.ingredients.forEach(ing => {
+                            if (ing.name === ingredientName) {
+                                ing.have = have;
+                            }
+                        });
+                    });
+                }
+            });
+            
+            selectedRecipes.forEach(recipe => {
+                if (recipe.id === recipeId) {
+                    recipe.ingredientGroups.forEach(group => {
+                        group.ingredients.forEach(ing => {
+                            if (ing.name === ingredientName) {
+                                ing.have = have;
+                            }
+                        });
+                    });
+                }
+            });
+            
+            localStorage.setItem('recipes', JSON.stringify(recipes));
+            localStorage.setItem('selectedRecipes', JSON.stringify(selectedRecipes));
+        }
+
+        function convertMeasurement(amount, fromUnit, ingredientName, labelElement) {
+            const conversions = {
+                // Volume conversions (to ml)
+                'l': 1000,
+                'ml': 1,
+                'cup': 236.588,
+                'tbsp': 14.787,
+                'tsp': 4.929,
+                'fl oz': 29.574,
+                
+                // Weight conversions (to g)
+                'kg': 1000,
+                'g': 1,
+                'lb': 453.592,
+                'oz': 28.35,
+                
+                // Items
+                'item': 1
+            };
+            
+            const amt = parseFloat(amount);
+            
+            // Simple conversion examples
+            if (fromUnit === 'cup' && amt >= 1) {
+                const mlAmount = amt * conversions['cup'];
+                labelElement.textContent = `${mlAmount.toFixed(0)} ml ${ingredientName}`;
+            } else if (fromUnit === 'tbsp' && amt >= 3) {
+                const tbspPerCup = 16;
+                const cups = amt / tbspPerCup;
+                labelElement.textContent = `${cups.toFixed(2)} cup ${ingredientName}`;
+            } else if (fromUnit === 'oz' && amt >= 1) {
+                const gAmount = amt * conversions['oz'];
+                labelElement.textContent = `${gAmount.toFixed(0)} g ${ingredientName}`;
+            } else if (fromUnit === 'g' && amt >= 1000) {
+                const kgAmount = amt / 1000;
+                labelElement.textContent = `${kgAmount.toFixed(2)} kg ${ingredientName}`;
+            } else {
+                // Show alternative
+                alert(`Current: ${amount} ${fromUnit}\nTip: Try converting to ml, cups, g, or kg based on the measurement type.`);
+            }
+        }
+
+        function displayMealPlanRecipes() {
+            const mealPlanDiv = document.getElementById('mealPlanRecipes');
+            mealPlanDiv.innerHTML = '';
+            
+            recipes.forEach(recipe => {
+                const recipeCard = createRecipeCard(recipe, true);
+                mealPlanDiv.appendChild(recipeCard);
+            });
+        }
+
+        // Generate shopping list
+        document.getElementById('generateShoppingList').addEventListener('click', () => {
+            const shoppingListContent = document.getElementById('shoppingListContent');
+            
+            const allIngredients = {};
+            
+            selectedRecipes.forEach(recipe => {
+                const scale = (recipe.currentServings || recipe.servings) / recipe.servings;
+                
+                recipe.ingredientGroups.forEach(group => {
+                    group.ingredients.forEach(ing => {
+                        if (!ing.have) {
+                            const key = `${ing.name}_${ing.unit}`;
+                            if (allIngredients[key]) {
+                                allIngredients[key].amount += parseFloat(ing.amount) * scale;
+                            } else {
+                                allIngredients[key] = {
+                                    name: ing.name,
+                                    amount: parseFloat(ing.amount) * scale,
+                                    unit: ing.unit
+                                };
+                            }
+                        }
+                    });
+                });
+            });
+            
+            let listHTML = '<h3>Shopping List</h3><ul>';
+            
+            if (Object.keys(allIngredients).length === 0) {
+                listHTML += '<li>No items needed - you have everything!</li>';
+            } else {
+                const sortedIngredients = Object.values(allIngredients).sort((a, b) => a.name.localeCompare(b.name));
+                
+                sortedIngredients.forEach(ing => {
+                    listHTML += `<li>${ing.amount.toFixed(2)} ${ing.unit} ${ing.name}</li>`;
+                });
+            }
+            
+            listHTML += '</ul>';
+            shoppingListContent.innerHTML = listHTML;
+        });
+
+        // Import/Export functionality
+        document.getElementById('exportData').addEventListener('click', () => {
+            const exportText = document.getElementById('exportText');
+            exportText.value = JSON.stringify(recipes, null, 2);
+        });
+
+        document.getElementById('importData').addEventListener('click', () => {
+            const importText = document.getElementById('importText').value;
+            try {
+                const importedRecipes = JSON.parse(importText);
+                recipes = [...recipes, ...importedRecipes];
+                localStorage.setItem('recipes', JSON.stringify(recipes));
+                displayRecipes();
+                alert('Recipes imported successfully!');
+                document.getElementById('importText').value = '';
+            } catch (error) {
+                alert('Error importing recipes. Please check the format and try again.');
+            }
+        });
+
+        // Initialize the app
+        displayRecipes();
+    </script>
 </body>
 </html>
