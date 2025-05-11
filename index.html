@@ -314,6 +314,13 @@
                     </select>
                 </div>
                 
+                <div class="form-group" id="subcategory-group" style="display: none;">
+                    <label for="subcategory">Subcategory</label>
+                    <select id="subcategory">
+                        <option value="">Select a subcategory (optional)</option>
+                    </select>
+                </div>
+                
                 <div class="form-group">
                     <label for="servings">Servings</label>
                     <input type="number" id="servings" value="4" min="1" required>
@@ -322,6 +329,11 @@
                 <div class="form-group">
                     <label for="ingredients">Ingredients (one per line, format: amount unit ingredient)</label>
                     <textarea id="ingredients" placeholder="2 cups flour&#10;1 pound chicken breast&#10;3 medium onions" required></textarea>
+                </div>
+
+                <div class="form-group" id="sauce-group" style="display: none;">
+                    <label for="sauce-ingredients">Sauce Ingredients (optional)</label>
+                    <textarea id="sauce-ingredients" placeholder="1 cup tomato sauce&#10;2 cloves garlic&#10;1 teaspoon oregano"></textarea>
                 </div>
 
                 <div class="form-group">
@@ -349,6 +361,12 @@
                         <option value="all">All Recipes</option>
                         <option value="savory">Savory</option>
                         <option value="dessert">Dessert</option>
+                    </select>
+                </div>
+                <div class="metric-converter">
+                    <label>Filter by Subcategory:</label>
+                    <select id="subcategory-filter">
+                        <option value="all">All Subcategories</option>
                     </select>
                 </div>
             </div>
@@ -411,6 +429,12 @@
             'kg': { metric: 'kg', ratio: 1 },
         };
 
+        // Subcategories for each main category
+        const SUBCATEGORIES = {
+            savory: ['sauce', 'soup', 'main dish', 'side dish', 'appetizer', 'salad', 'breakfast'],
+            dessert: ['cake', 'cookie', 'pie', 'pudding', 'ice cream', 'candy', 'pastry']
+        };
+
         // Initialize the app
         let recipes = JSON.parse(localStorage.getItem('recipes')) || [];
         let metricSystem = 'imperial';
@@ -435,6 +459,18 @@
             });
         });
 
+        // Handle category change to show/hide sauce ingredients
+        document.getElementById('category').addEventListener('change', (e) => {
+            const sauceGroup = document.getElementById('sauce-group');
+            
+            if (e.target.value === 'savory') {
+                sauceGroup.style.display = 'block';
+            } else {
+                sauceGroup.style.display = 'none';
+                document.getElementById('sauce-ingredients').value = '';
+            }
+        });
+
         // Recipe form submission
         document.getElementById('recipe-form').addEventListener('submit', (e) => {
             e.preventDefault();
@@ -445,6 +481,7 @@
                 category: document.getElementById('category').value,
                 servings: parseInt(document.getElementById('servings').value),
                 ingredients: parseIngredients(document.getElementById('ingredients').value),
+                sauceIngredients: document.getElementById('sauce-ingredients').value ? parseIngredients(document.getElementById('sauce-ingredients').value) : [],
                 instructions: document.getElementById('instructions').value || ''
             };
             
@@ -502,14 +539,18 @@
         function renderRecipes() {
             const container = document.getElementById('recipes-list');
             const categoryFilter = document.getElementById('category-filter').value;
+            const subcategoryFilter = document.getElementById('subcategory-filter').value;
             
             let filteredRecipes = recipes;
             if (categoryFilter !== 'all') {
-                filteredRecipes = recipes.filter(recipe => recipe.category === categoryFilter);
+                filteredRecipes = filteredRecipes.filter(recipe => recipe.category === categoryFilter);
+            }
+            if (subcategoryFilter !== 'all') {
+                filteredRecipes = filteredRecipes.filter(recipe => recipe.subcategory === subcategoryFilter);
             }
             
             if (filteredRecipes.length === 0) {
-                container.innerHTML = '<p class="empty-state">No recipes in this category. Add your first recipe!</p>';
+                container.innerHTML = '<p class="empty-state">No recipes match your filters. Add your first recipe!</p>';
                 return;
             }
             
@@ -539,6 +580,20 @@
                             </li>
                         `).join('')}
                     </ul>
+                    ${recipe.sauceIngredients && recipe.sauceIngredients.length > 0 ? `
+                        <h4 style="margin-top: 15px; color: #34495e;">Sauce Ingredients:</h4>
+                        <ul class="ingredients-list">
+                            ${recipe.sauceIngredients.map(ing => `
+                                <li class="ingredient-item">
+                                    <input type="checkbox" class="ingredient-checkbox" 
+                                           data-recipe-id="${recipe.id}" 
+                                           data-ingredient="${ing.ingredient}"
+                                           onchange="toggleIngredient(${recipe.id}, '${ing.ingredient}', this.checked)">
+                                    ${formatIngredient(ing, recipe.customServings || recipe.servings, recipe.servings)}
+                                </li>
+                            `).join('')}
+                        </ul>
+                    ` : ''}
                     ${recipe.instructions ? `<p style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0; white-space: pre-wrap;">${recipe.instructions}</p>` : ''}
                 </div>
             `).join('');
@@ -628,6 +683,42 @@
             }
         }
 
+        // Helper function to process ingredients for shopping list
+        function processIngredientForShoppingList(ingredient, servingRatio, recipeName, shoppingList) {
+            let amount = ingredient.amount * servingRatio;
+            let unit = ingredient.unit;
+            
+            // Apply metric conversion
+            if (metricSystem === 'metric' && UNIT_CONVERSIONS[unit]) {
+                const conversion = UNIT_CONVERSIONS[unit];
+                amount *= conversion.ratio;
+                unit = conversion.metric;
+                
+                // Normalize units
+                if (unit === 'ml' && amount >= 1000) {
+                    amount /= 1000;
+                    unit = 'l';
+                } else if (unit === 'g' && amount >= 1000) {
+                    amount /= 1000;
+                    unit = 'kg';
+                }
+            }
+            
+            const key = `${ingredient.ingredient}_${unit}`;
+            
+            if (!shoppingList[key]) {
+                shoppingList[key] = {
+                    ingredient: ingredient.ingredient,
+                    amount: 0,
+                    unit: unit,
+                    recipes: new Set()
+                };
+            }
+            
+            shoppingList[key].amount += amount;
+            shoppingList[key].recipes.add(recipeName);
+        }
+
         // Generate shopping list
         function generateShoppingList() {
             const selectedRecipes = recipes.filter(r => r.selected);
@@ -641,45 +732,27 @@
             selectedRecipes.forEach(recipe => {
                 const servingRatio = (recipe.customServings || recipe.servings) / recipe.servings;
                 
+                // Process main ingredients
                 recipe.ingredients.forEach(ingredient => {
                     // Skip excluded ingredients
                     if (recipe.excludedIngredients && recipe.excludedIngredients.has(ingredient.ingredient)) {
                         return;
                     }
                     
-                    let amount = ingredient.amount * servingRatio;
-                    let unit = ingredient.unit;
-                    
-                    // Apply metric conversion
-                    if (metricSystem === 'metric' && UNIT_CONVERSIONS[unit]) {
-                        const conversion = UNIT_CONVERSIONS[unit];
-                        amount *= conversion.ratio;
-                        unit = conversion.metric;
-                        
-                        // Normalize units
-                        if (unit === 'ml' && amount >= 1000) {
-                            amount /= 1000;
-                            unit = 'l';
-                        } else if (unit === 'g' && amount >= 1000) {
-                            amount /= 1000;
-                            unit = 'kg';
-                        }
-                    }
-                    
-                    const key = `${ingredient.ingredient}_${unit}`;
-                    
-                    if (!shoppingList[key]) {
-                        shoppingList[key] = {
-                            ingredient: ingredient.ingredient,
-                            amount: 0,
-                            unit: unit,
-                            recipes: new Set()
-                        };
-                    }
-                    
-                    shoppingList[key].amount += amount;
-                    shoppingList[key].recipes.add(recipe.name);
+                    processIngredientForShoppingList(ingredient, servingRatio, recipe.name, shoppingList);
                 });
+                
+                // Process sauce ingredients if they exist
+                if (recipe.sauceIngredients && recipe.sauceIngredients.length > 0) {
+                    recipe.sauceIngredients.forEach(ingredient => {
+                        // Skip excluded ingredients
+                        if (recipe.excludedIngredients && recipe.excludedIngredients.has(ingredient.ingredient)) {
+                            return;
+                        }
+                        
+                        processIngredientForShoppingList(ingredient, servingRatio, `${recipe.name} (sauce)`, shoppingList);
+                    });
+                }
             });
             
             // Render shopping list
@@ -804,18 +877,44 @@
             localStorage.setItem('recipes', JSON.stringify(recipes));
         }
 
-        // Metric system and category filter
-        document.getElementById('metric-system').addEventListener('change', (e) => {
-            metricSystem = e.target.value;
+        // Update subcategory filter options when category filter changes
+        function updateSubcategoryFilter() {
+            const categoryFilter = document.getElementById('category-filter').value;
+            const subcategoryFilter = document.getElementById('subcategory-filter');
+            
+            // Clear current options
+            subcategoryFilter.innerHTML = '<option value="all">All Subcategories</option>';
+            
+            if (categoryFilter !== 'all' && SUBCATEGORIES[categoryFilter]) {
+                // Get unique subcategories from recipes in the selected category
+                const subcategoriesInUse = new Set();
+                recipes.forEach(recipe => {
+                    if (recipe.category === categoryFilter && recipe.subcategory) {
+                        subcategoriesInUse.add(recipe.subcategory);
+                    }
+                });
+                
+                // Add options for subcategories that are actually in use
+                subcategoriesInUse.forEach(subcategory => {
+                    subcategoryFilter.innerHTML += `<option value="${subcategory}">${subcategory}</option>`;
+                });
+            }
+        }
+
+        // Category filter change handler
+        document.getElementById('category-filter').addEventListener('change', (e) => {
+            updateSubcategoryFilter();
             renderRecipes();
         });
         
-        document.getElementById('category-filter').addEventListener('change', (e) => {
+        // Subcategory filter change handler
+        document.getElementById('subcategory-filter').addEventListener('change', (e) => {
             renderRecipes();
         });
 
         // Initialize the app
         renderRecipes();
+        updateSubcategoryFilter();
     </script>
 </body>
 </html>
