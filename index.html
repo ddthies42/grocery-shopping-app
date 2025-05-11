@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grocery Shopping App</title>
+    <title>Recipe Grocery Shopping</title>
     <style>
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background-color: #f8faf9;
+            color: #2c3e50;
             line-height: 1.6;
-            color: #333;
-            background-color: #f5f5f5;
         }
 
         .container {
@@ -25,66 +25,83 @@
         }
 
         header {
-            background: #4CAF50;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
             color: white;
+            padding: 30px 20px;
             text-align: center;
-            padding: 1rem;
-            margin-bottom: 2rem;
-            border-radius: 8px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
         }
 
         .tabs {
             display: flex;
-            margin-bottom: 2rem;
             gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
         }
 
         .tab {
-            padding: 10px 20px;
-            background: #ddd;
+            padding: 12px 24px;
+            background: #e8f4fd;
+            border: none;
+            border-radius: 25px;
             cursor: pointer;
-            border-radius: 4px;
-            transition: background 0.3s;
+            transition: all 0.3s ease;
+            font-weight: 500;
         }
 
         .tab.active {
-            background: #4CAF50;
+            background: #2575fc;
             color: white;
         }
 
-        .tab-content {
-            display: none;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        .tab:hover:not(.active) {
+            background: #d0e8fc;
         }
 
-        .tab-content.active {
+        .section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: none;
+        }
+
+        .section.active {
             display: block;
         }
 
-        /* Recipe form styles */
-        .recipe-form {
-            margin-bottom: 2rem;
-        }
-
         .form-group {
-            margin-bottom: 1rem;
+            margin-bottom: 20px;
         }
 
         label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #34495e;
         }
 
         input, textarea, select {
             width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #2575fc;
+            box-shadow: 0 0 0 3px rgba(37, 117, 252, 0.1);
         }
 
         textarea {
@@ -92,670 +109,680 @@
             resize: vertical;
         }
 
-        button {
-            background: #4CAF50;
+        .btn {
+            background: #2575fc;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 12px 24px;
+            border-radius: 8px;
             cursor: pointer;
-            border-radius: 4px;
+            font-size: 16px;
+            transition: all 0.3s ease;
             margin-right: 10px;
-        }
-
-        button:hover {
-            background: #45a049;
-        }
-
-        button.secondary {
-            background: #008CBA;
-        }
-
-        button.danger {
-            background: #f44336;
-        }
-
-        /* Recipe list styles */
-        .recipe-list {
-            display: grid;
-            gap: 1rem;
-        }
-
-        .recipe-card {
-            background: #f9f9f9;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 1rem;
-            cursor: pointer;
-        }
-
-        .recipe-card.selected {
-            background: #e8f5e9;
-            border-color: #4CAF50;
-        }
-
-        .recipe-card h3 {
-            color: #4CAF50;
             margin-bottom: 10px;
         }
 
-        .ingredient-group {
+        .btn:hover {
+            background: #1a5fcf;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #e8f4fd;
+            color: #2575fc;
+        }
+
+        .btn-secondary:hover {
+            background: #d0e8fc;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .recipe-card {
+            background: #f8faf9;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: transform 0.2s ease;
+        }
+
+        .recipe-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .recipe-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 15px;
         }
 
-        .ingredient-group h4 {
-            margin-bottom: 5px;
-            font-size: 1.1em;
-            color: #666;
+        .recipe-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #2c3e50;
         }
 
-        .ingredient {
+        .ingredients-list {
+            list-style: none;
+            margin-left: 20px;
+        }
+
+        .ingredient-item {
             display: flex;
             align-items: center;
-            padding: 5px 0;
+            margin: 8px 0;
+            padding: 8px;
+            background: white;
+            border-radius: 6px;
         }
 
-        .ingredient input[type="checkbox"] {
-            margin-right: 10px;
-            width: auto;
+        .ingredient-checkbox {
+            margin-right: 12px;
+            transform: scale(1.2);
+            cursor: pointer;
         }
 
-        .ingredient label {
-            flex: 1;
-            margin: 0;
-            font-weight: normal;
+        .metric-converter {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
         }
 
-        .convert-btn {
-            margin-left: 10px;
-            padding: 4px 8px;
-            font-size: 0.8em;
-        }
-
-        /* Shopping list styles */
         .shopping-list {
-            background: #f9f9f9;
-            padding: 1rem;
-            border-radius: 4px;
-        }
-
-        .shopping-list h3 {
-            margin-bottom: 1rem;
-            color: #4CAF50;
-        }
-
-        .shopping-list ul {
             list-style: none;
         }
 
-        .shopping-list li {
-            padding: 5px 0;
-            border-bottom: 1px solid #eee;
+        .shopping-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.2s ease;
+        }
+
+        .shopping-item:hover {
+            background-color: #f8faf9;
+        }
+
+        .shopping-checkbox {
+            margin-right: 12px;
+            transform: scale(1.2);
+            cursor: pointer;
+        }
+
+        .shopping-item.checked {
+            opacity: 0.5;
+            text-decoration: line-through;
         }
 
         .serving-control {
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 10px;
+            margin-left: auto;
         }
 
-        .hidden {
-            display: none;
-        }
-
-        .import-export {
-            margin-top: 2rem;
-            padding-top: 2rem;
-            border-top: 1px solid #ddd;
-        }
-
-        .import-export textarea {
-            height: 150px;
-        }
-
-        .servings-input {
+        .serving-control input {
             width: 60px;
-            display: inline-block;
+            text-align: center;
+            padding: 6px;
+        }
+
+        .data-management {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #7f8c8d;
+            margin: 40px 0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            header {
+                padding: 20px 15px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .tab {
+                width: 100%;
+            }
+
+            .recipe-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .serving-control {
+                margin-left: 0;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Grocery Shopping App</h1>
-            <p>Manage recipes, plan meals, and generate shopping lists</p>
+            <h1>🥘 Recipe Grocery Shopping</h1>
+            <p>Organize your recipes and generate shopping lists with ease</p>
         </header>
 
         <div class="tabs">
-            <div class="tab active" data-tab="recipes">Recipes</div>
-            <div class="tab" data-tab="meal-plan">Meal Plan</div>
-            <div class="tab" data-tab="shopping-list">Shopping List</div>
-            <div class="tab" data-tab="import-export">Import/Export</div>
+            <button class="tab active" data-tab="add-recipe">Add Recipe</button>
+            <button class="tab" data-tab="view-recipes">View Recipes</button>
+            <button class="tab" data-tab="shopping-list">Shopping List</button>
+            <button class="tab" data-tab="manage-data">Manage Data</button>
         </div>
 
-        <div id="recipes" class="tab-content active">
-            <h2>Manage Recipes</h2>
-            
-            <div class="recipe-form">
-                <h3>Add New Recipe</h3>
-                <form id="recipeForm">
-                    <div class="form-group">
-                        <label for="recipeName">Recipe Name:</label>
-                        <input type="text" id="recipeName" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="recipeServings">Default Servings:</label>
-                        <input type="number" id="recipeServings" min="1" value="4" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="recipeInstructions">Instructions:</label>
-                        <textarea id="recipeInstructions"></textarea>
-                    </div>
-                    
-                    <div id="ingredientGroups">
-                        <h4>Ingredients</h4>
-                        <div class="ingredient-group" data-group="0">
-                            <input type="text" placeholder="Group name (e.g., 'For the sauce')" class="group-name">
-                            <div class="ingredients-list">
-                                <div class="ingredient-item">
-                                    <input type="text" placeholder="Amount" class="ingredient-amount" style="width: 80px;">
-                                    <select class="ingredient-unit" style="width: 100px;">
-                                        <option value="g">g</option>
-                                        <option value="kg">kg</option>
-                                        <option value="ml">ml</option>
-                                        <option value="l">l</option>
-                                        <option value="cup" selected>cup</option>
-                                        <option value="tbsp">tbsp</option>
-                                        <option value="tsp">tsp</option>
-                                        <option value="oz">oz</option>
-                                        <option value="lb">lb</option>
-                                        <option value="item">item</option>
-                                    </select>
-                                    <input type="text" placeholder="Ingredient name" class="ingredient-name">
-                                    <button type="button" class="remove-ingredient danger">Remove</button>
-                                </div>
-                            </div>
-                            <button type="button" class="add-ingredient secondary">Add Ingredient</button>
-                        </div>
-                    </div>
-                    
-                    <button type="button" id="addGroup" class="secondary">Add Ingredient Group</button>
-                    <br><br>
-                    <button type="submit">Save Recipe</button>
-                </form>
-            </div>
-            
-            <div class="recipe-list" id="recipeList">
-                <!-- Recipes will be displayed here -->
-            </div>
-        </div>
-
-        <div id="meal-plan" class="tab-content">
-            <h2>Select Recipes for Meal Plan</h2>
-            <div id="mealPlanRecipes" class="recipe-list">
-                <!-- Recipe selection for meal planning -->
-            </div>
-        </div>
-
-        <div id="shopping-list" class="tab-content">
-            <h2>Shopping List</h2>
-            <button id="generateShoppingList">Generate Shopping List</button>
-            <div id="shoppingListContent" class="shopping-list">
-                <!-- Shopping list will be generated here -->
-            </div>
-        </div>
-
-        <div id="import-export" class="tab-content">
-            <h2>Import/Export Data</h2>
-            <div class="import-export">
-                <h3>Export Recipes</h3>
-                <button id="exportData">Export All Recipes</button>
-                <textarea id="exportText" readonly></textarea>
+        <div id="add-recipe" class="section active">
+            <h2>Add New Recipe</h2>
+            <form id="recipe-form">
+                <div class="form-group">
+                    <label for="recipe-name">Recipe Name</label>
+                    <input type="text" id="recipe-name" required>
+                </div>
                 
-                <h3>Import Recipes</h3>
-                <textarea id="importText" placeholder="Paste your recipe data here..."></textarea>
-                <button id="importData">Import Recipes</button>
+                <div class="form-group">
+                    <label for="servings">Servings</label>
+                    <input type="number" id="servings" value="4" min="1" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="ingredients">Ingredients (one per line, format: amount unit ingredient)</label>
+                    <textarea id="ingredients" placeholder="2 cups flour&#10;1 pound chicken breast&#10;3 medium onions" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="instructions">Instructions</label>
+                    <textarea id="instructions" placeholder="Step-by-step cooking instructions..."></textarea>
+                </div>
+
+                <button type="submit" class="btn">Add Recipe</button>
+            </form>
+        </div>
+
+        <div id="view-recipes" class="section">
+            <h2>My Recipes</h2>
+            <div class="metric-converter">
+                <label>Metric Conversion:</label>
+                <select id="metric-system">
+                    <option value="imperial">Imperial (cups, pounds, etc.)</option>
+                    <option value="metric">Metric (liters, kilograms, etc.)</option>
+                </select>
             </div>
+            <div id="recipes-list"></div>
+        </div>
+
+        <div id="shopping-list" class="section">
+            <h2>Shopping List</h2>
+            <div class="data-management">
+                <button class="btn" onclick="generateShoppingList()">Generate Shopping List</button>
+                <button class="btn btn-secondary" onclick="clearShoppingList()">Clear List</button>
+                <button class="btn btn-secondary" onclick="printShoppingList()">Print List</button>
+            </div>
+            <div id="shopping-list-container">
+                <p class="empty-state">No shopping list generated yet. Select recipes and click "Generate Shopping List".</p>
+            </div>
+        </div>
+
+        <div id="manage-data" class="section">
+            <h2>Manage Recipe Data</h2>
+            <div class="data-management">
+                <button class="btn" onclick="exportData()">Export Recipes</button>
+                <input type="file" id="import-file" accept=".json" style="display: none;" onchange="importData(event)">
+                <button class="btn btn-secondary" onclick="document.getElementById('import-file').click()">Import Recipes</button>
+                <button class="btn btn-danger" onclick="clearAllData()">Clear All Data</button>
+            </div>
+            <p style="margin-top: 20px; color: #7f8c8d;">Export your recipes as a JSON file for backup, or import previously saved recipes.</p>
         </div>
     </div>
 
     <script>
-        // Recipe management functionality
-        let recipes = JSON.parse(localStorage.getItem('recipes') || '[]');
-        let selectedRecipes = JSON.parse(localStorage.getItem('selectedRecipes') || '[]');
+        // Unit conversion tables
+        const UNIT_CONVERSIONS = {
+            // Volume conversions
+            'cup': { metric: 'ml', ratio: 236.588 },
+            'cups': { metric: 'ml', ratio: 236.588 },
+            'tablespoon': { metric: 'ml', ratio: 14.787 },
+            'tablespoons': { metric: 'ml', ratio: 14.787 },
+            'teaspoon': { metric: 'ml', ratio: 4.929 },
+            'teaspoons': { metric: 'ml', ratio: 4.929 },
+            'fluid ounce': { metric: 'ml', ratio: 29.574 },
+            'fluid ounces': { metric: 'ml', ratio: 29.574 },
+            'pint': { metric: 'ml', ratio: 473.176 },
+            'pints': { metric: 'ml', ratio: 473.176 },
+            'quart': { metric: 'l', ratio: 0.946 },
+            'quarts': { metric: 'l', ratio: 0.946 },
+            'gallon': { metric: 'l', ratio: 3.785 },
+            'gallons': { metric: 'l', ratio: 3.785 },
+            
+            // Weight conversions
+            'pound': { metric: 'kg', ratio: 0.454 },
+            'pounds': { metric: 'kg', ratio: 0.454 },
+            'ounce': { metric: 'g', ratio: 28.35 },
+            'ounces': { metric: 'g', ratio: 28.35 },
+            
+            // Already metric
+            'ml': { metric: 'ml', ratio: 1 },
+            'l': { metric: 'l', ratio: 1 },
+            'g': { metric: 'g', ratio: 1 },
+            'kg': { metric: 'kg', ratio: 1 },
+        };
+
+        // Initialize the app
+        let recipes = JSON.parse(localStorage.getItem('recipes')) || [];
+        let metricSystem = 'imperial';
 
         // Tab switching
         document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', () => {
+            tab.addEventListener('click', (e) => {
+                // Update active tab
                 document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                e.target.classList.add('active');
                 
-                tab.classList.add('active');
-                document.getElementById(tab.dataset.tab).classList.add('active');
+                // Update active section
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                document.getElementById(e.target.dataset.tab).classList.add('active');
                 
-                if (tab.dataset.tab === 'meal-plan') {
-                    displayMealPlanRecipes();
+                // Refresh views
+                if (e.target.dataset.tab === 'view-recipes') {
+                    renderRecipes();
+                } else if (e.target.dataset.tab === 'shopping-list') {
+                    // Keep current shopping list
                 }
             });
         });
 
-        // Add ingredient functionality
-        document.addEventListener('click', (e) => {
-            if (e.target.classList.contains('add-ingredient')) {
-                const group = e.target.closest('.ingredient-group');
-                const ingredientsList = group.querySelector('.ingredients-list');
-                const newIngredient = document.createElement('div');
-                newIngredient.className = 'ingredient-item';
-                newIngredient.innerHTML = `
-                    <input type="text" placeholder="Amount" class="ingredient-amount" style="width: 80px;">
-                    <select class="ingredient-unit" style="width: 100px;">
-                        <option value="g">g</option>
-                        <option value="kg">kg</option>
-                        <option value="ml">ml</option>
-                        <option value="l">l</option>
-                        <option value="cup" selected>cup</option>
-                        <option value="tbsp">tbsp</option>
-                        <option value="tsp">tsp</option>
-                        <option value="oz">oz</option>
-                        <option value="lb">lb</option>
-                        <option value="item">item</option>
-                    </select>
-                    <input type="text" placeholder="Ingredient name" class="ingredient-name">
-                    <button type="button" class="remove-ingredient danger">Remove</button>
-                `;
-                ingredientsList.appendChild(newIngredient);
-            }
-            
-            if (e.target.classList.contains('remove-ingredient')) {
-                e.target.closest('.ingredient-item').remove();
-            }
-        });
-
-        // Add ingredient group
-        document.getElementById('addGroup').addEventListener('click', () => {
-            const groups = document.querySelectorAll('.ingredient-group');
-            const newGroupNum = groups.length;
-            const newGroup = document.createElement('div');
-            newGroup.className = 'ingredient-group';
-            newGroup.dataset.group = newGroupNum;
-            newGroup.innerHTML = `
-                <input type="text" placeholder="Group name (e.g., 'For the sauce')" class="group-name">
-                <div class="ingredients-list">
-                    <div class="ingredient-item">
-                        <input type="text" placeholder="Amount" class="ingredient-amount" style="width: 80px;">
-                        <select class="ingredient-unit" style="width: 100px;">
-                            <option value="g">g</option>
-                            <option value="kg">kg</option>
-                            <option value="ml">ml</option>
-                            <option value="l">l</option>
-                            <option value="cup" selected>cup</option>
-                            <option value="tbsp">tbsp</option>
-                            <option value="tsp">tsp</option>
-                            <option value="oz">oz</option>
-                            <option value="lb">lb</option>
-                            <option value="item">item</option>
-                        </select>
-                        <input type="text" placeholder="Ingredient name" class="ingredient-name">
-                        <button type="button" class="remove-ingredient danger">Remove</button>
-                    </div>
-                </div>
-                <button type="button" class="add-ingredient secondary">Add Ingredient</button>
-            `;
-            document.getElementById('ingredientGroups').appendChild(newGroup);
-        });
-
-        // Save recipe
-        document.getElementById('recipeForm').addEventListener('submit', (e) => {
+        // Recipe form submission
+        document.getElementById('recipe-form').addEventListener('submit', (e) => {
             e.preventDefault();
-            
-            const name = document.getElementById('recipeName').value;
-            const servings = parseInt(document.getElementById('recipeServings').value);
-            const instructions = document.getElementById('recipeInstructions').value;
-            
-            const ingredientGroups = [];
-            document.querySelectorAll('.ingredient-group').forEach(group => {
-                const groupName = group.querySelector('.group-name').value || 'Ingredients';
-                const ingredients = [];
-                
-                group.querySelectorAll('.ingredient-item').forEach(item => {
-                    const amount = item.querySelector('.ingredient-amount').value;
-                    const unit = item.querySelector('.ingredient-unit').value;
-                    const ingredientName = item.querySelector('.ingredient-name').value;
-                    
-                    if (amount && ingredientName) {
-                        ingredients.push({ amount, unit, name: ingredientName });
-                    }
-                });
-                
-                if (ingredients.length > 0) {
-                    ingredientGroups.push({ groupName, ingredients });
-                }
-            });
             
             const recipe = {
                 id: Date.now(),
-                name,
-                servings,
-                instructions,
-                ingredientGroups
+                name: document.getElementById('recipe-name').value,
+                servings: parseInt(document.getElementById('servings').value),
+                ingredients: parseIngredients(document.getElementById('ingredients').value),
+                instructions: document.getElementById('instructions').value || ''
             };
             
             recipes.push(recipe);
-            localStorage.setItem('recipes', JSON.stringify(recipes));
-            displayRecipes();
-            document.getElementById('recipeForm').reset();
-            
-            // Reset to single ingredient group
-            document.getElementById('ingredientGroups').innerHTML = `
-                <h4>Ingredients</h4>
-                <div class="ingredient-group" data-group="0">
-                    <input type="text" placeholder="Group name (e.g., 'For the sauce')" class="group-name">
-                    <div class="ingredients-list">
-                        <div class="ingredient-item">
-                            <input type="text" placeholder="Amount" class="ingredient-amount" style="width: 80px;">
-                            <select class="ingredient-unit" style="width: 100px;">
-                                <option value="g">g</option>
-                                <option value="kg">kg</option>
-                                <option value="ml">ml</option>
-                                <option value="l">l</option>
-                                <option value="cup" selected>cup</option>
-                                <option value="tbsp">tbsp</option>
-                                <option value="tsp">tsp</option>
-                                <option value="oz">oz</option>
-                                <option value="lb">lb</option>
-                                <option value="item">item</option>
-                            </select>
-                            <input type="text" placeholder="Ingredient name" class="ingredient-name">
-                            <button type="button" class="remove-ingredient danger">Remove</button>
-                        </div>
-                    </div>
-                    <button type="button" class="add-ingredient secondary">Add Ingredient</button>
-                </div>
-            `;
+            saveRecipes();
+            alert('Recipe added successfully!');
+            document.getElementById('recipe-form').reset();
         });
 
-        // Display recipes
-        function displayRecipes() {
-            const recipeList = document.getElementById('recipeList');
-            recipeList.innerHTML = '';
-            
-            recipes.forEach(recipe => {
-                const recipeCard = createRecipeCard(recipe, false);
-                recipeList.appendChild(recipeCard);
-            });
-        }
-
-        function createRecipeCard(recipe, forMealPlan = false) {
-            const card = document.createElement('div');
-            card.className = 'recipe-card';
-            if (forMealPlan && selectedRecipes.some(r => r.id === recipe.id)) {
-                card.classList.add('selected');
-            }
-            
-            let ingredientsHTML = '';
-            recipe.ingredientGroups.forEach(group => {
-                ingredientsHTML += `<div class="ingredient-group">
-                    <h4>${group.groupName}</h4>`;
+        // Parse ingredients from text
+        function parseIngredients(text) {
+            return text.split('\n').filter(line => line.trim()).map(line => {
+                const parts = line.trim().split(' ');
+                const amount = parseFloat(parts[0]);
+                let unit = '';
+                let ingredient = '';
                 
-                group.ingredients.forEach(ing => {
-                    const scaleAmount = forMealPlan ? (parseFloat(ing.amount) * (recipe.currentServings || recipe.servings) / recipe.servings).toFixed(2) : ing.amount;
-                    ingredientsHTML += `
-                        <div class="ingredient">
-                            <input type="checkbox" id="ing_${recipe.id}_${ing.name.replace(/\s/g, '_')}" ${ing.have ? 'checked' : ''}>
-                            <label for="ing_${recipe.id}_${ing.name.replace(/\s/g, '_')}">${scaleAmount} ${ing.unit} ${ing.name}</label>
-                            <button class="convert-btn secondary">Convert</button>
-                        </div>
-                    `;
-                });
-                
-                ingredientsHTML += '</div>';
-            });
-            
-            card.innerHTML = `
-                <h3>${recipe.name}</h3>
-                <div class="serving-control">
-                    <label>Servings:</label>
-                    ${forMealPlan ? `
-                        <button class="decrease-serving">-</button>
-                        <input type="number" class="servings-input" value="${recipe.currentServings || recipe.servings}" min="1">
-                        <button class="increase-serving">+</button>
-                    ` : `<span>${recipe.servings}</span>`}
-                </div>
-                ${ingredientsHTML}
-                <p><strong>Instructions:</strong> ${recipe.instructions}</p>
-                ${!forMealPlan ? `<button class="delete-recipe danger">Delete Recipe</button>` : ''}
-            `;
-            
-            if (!forMealPlan) {
-                card.querySelector('.delete-recipe').addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    recipes = recipes.filter(r => r.id !== recipe.id);
-                    localStorage.setItem('recipes', JSON.stringify(recipes));
-                    displayRecipes();
-                });
-            } else {
-                card.addEventListener('click', () => {
-                    if (selectedRecipes.some(r => r.id === recipe.id)) {
-                        selectedRecipes = selectedRecipes.filter(r => r.id !== recipe.id);
-                        card.classList.remove('selected');
-                    } else {
-                        recipe.currentServings = recipe.servings;
-                        selectedRecipes.push(recipe);
-                        card.classList.add('selected');
+                // Find where the unit ends and ingredient begins
+                let unitEnd = 1;
+                if (isNaN(parts[0])) {
+                    // No amount specified
+                    ingredient = line.trim();
+                    return { amount: 1, unit: '', ingredient, originalLine: line.trim() };
+                } else if (parts.length > 1 && !isNaN(parts[1])) {
+                    // Amount is a fraction like "1 1/2"
+                    const fraction = parts[1].split('/');
+                    if (fraction.length === 2) {
+                        const wholeNumber = amount;
+                        const numerator = parseFloat(fraction[0]);
+                        const denominator = parseFloat(fraction[1]);
+                        amount = wholeNumber + (numerator / denominator);
+                        unitEnd = 2;
                     }
-                    localStorage.setItem('selectedRecipes', JSON.stringify(selectedRecipes));
-                });
-                
-                // Serving adjustment
-                const decreaseBtn = card.querySelector('.decrease-serving');
-                const increaseBtn = card.querySelector('.increase-serving');
-                const servingInput = card.querySelector('.servings-input');
-                
-                if (decreaseBtn) {
-                    decreaseBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        if (parseInt(servingInput.value) > 1) {
-                            servingInput.value = parseInt(servingInput.value) - 1;
-                            updateServings(recipe.id, parseInt(servingInput.value));
-                        }
-                    });
                 }
                 
-                if (increaseBtn) {
-                    increaseBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        servingInput.value = parseInt(servingInput.value) + 1;
-                        updateServings(recipe.id, parseInt(servingInput.value));
-                    });
+                // Find unit and ingredient
+                for (let i = unitEnd; i < parts.length; i++) {
+                    if (UNIT_CONVERSIONS[parts[i].toLowerCase()]) {
+                        unit = parts[i].toLowerCase();
+                        ingredient = parts.slice(i + 1).join(' ');
+                        break;
+                    }
                 }
                 
-                if (servingInput) {
-                    servingInput.addEventListener('change', (e) => {
-                        e.stopPropagation();
-                        updateServings(recipe.id, parseInt(e.target.value));
-                    });
+                if (!ingredient) {
+                    // No recognized unit found
+                    ingredient = parts.slice(unitEnd).join(' ');
                 }
+                
+                return { amount, unit, ingredient, originalLine: line.trim() };
+            });
+        }
+
+        // Render recipes with checkboxes and serving adjustments
+        function renderRecipes() {
+            const container = document.getElementById('recipes-list');
+            if (recipes.length === 0) {
+                container.innerHTML = '<p class="empty-state">No recipes yet. Add your first recipe!</p>';
+                return;
             }
             
-            // Checkbox functionality
-            card.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            container.innerHTML = recipes.map(recipe => `
+                <div class="recipe-card">
+                    <div class="recipe-header">
+                        <div>
+                            <input type="checkbox" class="recipe-checkbox" data-recipe-id="${recipe.id}" ${recipe.selected ? 'checked' : ''}>
+                            <span class="recipe-title">${recipe.name}</span>
+                        </div>
+                        <div class="serving-control">
+                            <label>Servings:</label>
+                            <input type="number" min="1" value="${recipe.customServings || recipe.servings}" 
+                                   onchange="updateServings(${recipe.id}, this.value)">
+                            <button class="btn btn-danger" onclick="deleteRecipe(${recipe.id})">Delete</button>
+                        </div>
+                    </div>
+                    <ul class="ingredients-list">
+                        ${recipe.ingredients.map(ing => `
+                            <li class="ingredient-item">
+                                <input type="checkbox" class="ingredient-checkbox" 
+                                       data-recipe-id="${recipe.id}" 
+                                       data-ingredient="${ing.ingredient}"
+                                       onchange="toggleIngredient(${recipe.id}, '${ing.ingredient}', this.checked)">
+                                ${formatIngredient(ing, recipe.customServings || recipe.servings, recipe.servings)}
+                            </li>
+                        `).join('')}
+                    </ul>
+                    ${recipe.instructions ? `<p style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0; white-space: pre-wrap;">${recipe.instructions}</p>` : ''}
+                </div>
+            `).join('');
+            
+            // Add event listeners for recipe checkboxes
+            document.querySelectorAll('.recipe-checkbox').forEach(checkbox => {
                 checkbox.addEventListener('change', (e) => {
-                    const ingredientName = e.target.nextElementSibling.textContent.split(' ').slice(2).join(' ');
-                    updateIngredientStatus(recipe.id, ingredientName, e.target.checked);
+                    const recipeId = parseInt(e.target.dataset.recipeId);
+                    const recipe = recipes.find(r => r.id === recipeId);
+                    if (recipe) {
+                        recipe.selected = e.target.checked;
+                        // Automatically select all ingredients when recipe is selected
+                        if (e.target.checked) {
+                            recipe.ingredients.forEach(ing => {
+                                if (!recipe.excludedIngredients) recipe.excludedIngredients = new Set();
+                                recipe.excludedIngredients.delete(ing.ingredient);
+                            });
+                        }
+                        saveRecipes();
+                        renderRecipes();
+                    }
                 });
             });
-            
-            // Conversion functionality
-            card.querySelectorAll('.convert-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const ingredientDiv = e.target.closest('.ingredient');
-                    const label = ingredientDiv.querySelector('label');
-                    const [amount, unit, ...nameParts] = label.textContent.split(' ');
-                    convertMeasurement(amount, unit, nameParts.join(' '), label);
-                });
-            });
-            
-            return card;
         }
 
+        // Format ingredient with unit conversion and serving adjustment
+        function formatIngredient(ingredient, currentServings, originalServings) {
+            const ratio = currentServings / originalServings;
+            let amount = ingredient.amount * ratio;
+            let unit = ingredient.unit;
+            
+            // Apply metric conversion if needed
+            if (metricSystem === 'metric' && UNIT_CONVERSIONS[unit]) {
+                const conversion = UNIT_CONVERSIONS[unit];
+                amount *= conversion.ratio;
+                unit = conversion.metric;
+                
+                // Convert to appropriate metric units
+                if (unit === 'ml' && amount >= 1000) {
+                    amount /= 1000;
+                    unit = 'l';
+                } else if (unit === 'g' && amount >= 1000) {
+                    amount /= 1000;
+                    unit = 'kg';
+                }
+            }
+            
+            // Format amount nicely
+            amount = Math.round(amount * 100) / 100;
+            
+            if (amount % 1 === 0) amount = Math.round(amount);
+            
+            return `${amount} ${unit}${amount !== 1 && !unit.endsWith('s') ? 's' : ''} ${ingredient.ingredient}`;
+        }
+
+        // Toggle individual ingredient selection
+        function toggleIngredient(recipeId, ingredient, checked) {
+            const recipe = recipes.find(r => r.id === recipeId);
+            if (recipe) {
+                if (!recipe.excludedIngredients) recipe.excludedIngredients = new Set();
+                
+                if (checked) {
+                    recipe.excludedIngredients.delete(ingredient);
+                } else {
+                    recipe.excludedIngredients.add(ingredient);
+                }
+                saveRecipes();
+            }
+        }
+
+        // Update serving size
         function updateServings(recipeId, newServings) {
-            const recipeIndex = selectedRecipes.findIndex(r => r.id === recipeId);
-            if (recipeIndex !== -1) {
-                selectedRecipes[recipeIndex].currentServings = newServings;
-                localStorage.setItem('selectedRecipes', JSON.stringify(selectedRecipes));
-                displayMealPlanRecipes();
+            const recipe = recipes.find(r => r.id === recipeId);
+            if (recipe) {
+                recipe.customServings = parseInt(newServings);
+                saveRecipes();
+                renderRecipes();
             }
         }
 
-        function updateIngredientStatus(recipeId, ingredientName, have) {
-            recipes.forEach(recipe => {
-                if (recipe.id === recipeId) {
-                    recipe.ingredientGroups.forEach(group => {
-                        group.ingredients.forEach(ing => {
-                            if (ing.name === ingredientName) {
-                                ing.have = have;
-                            }
-                        });
-                    });
-                }
-            });
-            
-            selectedRecipes.forEach(recipe => {
-                if (recipe.id === recipeId) {
-                    recipe.ingredientGroups.forEach(group => {
-                        group.ingredients.forEach(ing => {
-                            if (ing.name === ingredientName) {
-                                ing.have = have;
-                            }
-                        });
-                    });
-                }
-            });
-            
-            localStorage.setItem('recipes', JSON.stringify(recipes));
-            localStorage.setItem('selectedRecipes', JSON.stringify(selectedRecipes));
-        }
-
-        function convertMeasurement(amount, fromUnit, ingredientName, labelElement) {
-            const conversions = {
-                // Volume conversions (to ml)
-                'l': 1000,
-                'ml': 1,
-                'cup': 236.588,
-                'tbsp': 14.787,
-                'tsp': 4.929,
-                'fl oz': 29.574,
-                
-                // Weight conversions (to g)
-                'kg': 1000,
-                'g': 1,
-                'lb': 453.592,
-                'oz': 28.35,
-                
-                // Items
-                'item': 1
-            };
-            
-            const amt = parseFloat(amount);
-            
-            // Simple conversion examples
-            if (fromUnit === 'cup' && amt >= 1) {
-                const mlAmount = amt * conversions['cup'];
-                labelElement.textContent = `${mlAmount.toFixed(0)} ml ${ingredientName}`;
-            } else if (fromUnit === 'tbsp' && amt >= 3) {
-                const tbspPerCup = 16;
-                const cups = amt / tbspPerCup;
-                labelElement.textContent = `${cups.toFixed(2)} cup ${ingredientName}`;
-            } else if (fromUnit === 'oz' && amt >= 1) {
-                const gAmount = amt * conversions['oz'];
-                labelElement.textContent = `${gAmount.toFixed(0)} g ${ingredientName}`;
-            } else if (fromUnit === 'g' && amt >= 1000) {
-                const kgAmount = amt / 1000;
-                labelElement.textContent = `${kgAmount.toFixed(2)} kg ${ingredientName}`;
-            } else {
-                // Show alternative
-                alert(`Current: ${amount} ${fromUnit}\nTip: Try converting to ml, cups, g, or kg based on the measurement type.`);
+        // Delete recipe
+        function deleteRecipe(recipeId) {
+            if (confirm('Are you sure you want to delete this recipe?')) {
+                recipes = recipes.filter(r => r.id !== recipeId);
+                saveRecipes();
+                renderRecipes();
             }
-        }
-
-        function displayMealPlanRecipes() {
-            const mealPlanDiv = document.getElementById('mealPlanRecipes');
-            mealPlanDiv.innerHTML = '';
-            
-            recipes.forEach(recipe => {
-                const recipeCard = createRecipeCard(recipe, true);
-                mealPlanDiv.appendChild(recipeCard);
-            });
         }
 
         // Generate shopping list
-        document.getElementById('generateShoppingList').addEventListener('click', () => {
-            const shoppingListContent = document.getElementById('shoppingListContent');
+        function generateShoppingList() {
+            const selectedRecipes = recipes.filter(r => r.selected);
+            if (selectedRecipes.length === 0) {
+                alert('Please select at least one recipe to generate a shopping list.');
+                return;
+            }
             
-            const allIngredients = {};
+            const shoppingList = {};
             
             selectedRecipes.forEach(recipe => {
-                const scale = (recipe.currentServings || recipe.servings) / recipe.servings;
+                const servingRatio = (recipe.customServings || recipe.servings) / recipe.servings;
                 
-                recipe.ingredientGroups.forEach(group => {
-                    group.ingredients.forEach(ing => {
-                        if (!ing.have) {
-                            const key = `${ing.name}_${ing.unit}`;
-                            if (allIngredients[key]) {
-                                allIngredients[key].amount += parseFloat(ing.amount) * scale;
-                            } else {
-                                allIngredients[key] = {
-                                    name: ing.name,
-                                    amount: parseFloat(ing.amount) * scale,
-                                    unit: ing.unit
-                                };
-                            }
+                recipe.ingredients.forEach(ingredient => {
+                    // Skip excluded ingredients
+                    if (recipe.excludedIngredients && recipe.excludedIngredients.has(ingredient.ingredient)) {
+                        return;
+                    }
+                    
+                    let amount = ingredient.amount * servingRatio;
+                    let unit = ingredient.unit;
+                    
+                    // Apply metric conversion
+                    if (metricSystem === 'metric' && UNIT_CONVERSIONS[unit]) {
+                        const conversion = UNIT_CONVERSIONS[unit];
+                        amount *= conversion.ratio;
+                        unit = conversion.metric;
+                        
+                        // Normalize units
+                        if (unit === 'ml' && amount >= 1000) {
+                            amount /= 1000;
+                            unit = 'l';
+                        } else if (unit === 'g' && amount >= 1000) {
+                            amount /= 1000;
+                            unit = 'kg';
                         }
-                    });
+                    }
+                    
+                    const key = `${ingredient.ingredient}_${unit}`;
+                    
+                    if (!shoppingList[key]) {
+                        shoppingList[key] = {
+                            ingredient: ingredient.ingredient,
+                            amount: 0,
+                            unit: unit,
+                            recipes: new Set()
+                        };
+                    }
+                    
+                    shoppingList[key].amount += amount;
+                    shoppingList[key].recipes.add(recipe.name);
                 });
             });
             
-            let listHTML = '<h3>Shopping List</h3><ul>';
+            // Render shopping list
+            const container = document.getElementById('shopping-list-container');
+            const items = Object.values(shoppingList);
             
-            if (Object.keys(allIngredients).length === 0) {
-                listHTML += '<li>No items needed - you have everything!</li>';
-            } else {
-                const sortedIngredients = Object.values(allIngredients).sort((a, b) => a.name.localeCompare(b.name));
-                
-                sortedIngredients.forEach(ing => {
-                    listHTML += `<li>${ing.amount.toFixed(2)} ${ing.unit} ${ing.name}</li>`;
+            if (items.length === 0) {
+                container.innerHTML = '<p class="empty-state">No items in shopping list.</p>';
+                return;
+            }
+            
+            container.innerHTML = `
+                <ul class="shopping-list">
+                    ${items.map(item => {
+                        const amount = Math.round(item.amount * 100) / 100;
+                        const amountFormatted = amount % 1 === 0 ? Math.round(amount) : amount;
+                        return `
+                            <li class="shopping-item">
+                                <input type="checkbox" class="shopping-checkbox">
+                                <span>${amountFormatted} ${item.unit}${amount !== 1 && !item.unit.endsWith('s') ? 's' : ''} ${item.ingredient}</span>
+                                <span style="margin-left: auto; color: #7f8c8d; font-size: 0.9em;">
+                                    (${Array.from(item.recipes).join(', ')})
+                                </span>
+                            </li>
+                        `;
+                    }).join('')}
+                </ul>
+            `;
+            
+            // Add checkbox functionality
+            document.querySelectorAll('.shopping-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', (e) => {
+                    const item = e.target.closest('.shopping-item');
+                    if (e.target.checked) {
+                        item.classList.add('checked');
+                    } else {
+                        item.classList.remove('checked');
+                    }
                 });
-            }
-            
-            listHTML += '</ul>';
-            shoppingListContent.innerHTML = listHTML;
-        });
+            });
+        }
 
-        // Import/Export functionality
-        document.getElementById('exportData').addEventListener('click', () => {
-            const exportText = document.getElementById('exportText');
-            exportText.value = JSON.stringify(recipes, null, 2);
-        });
+        // Clear shopping list
+        function clearShoppingList() {
+            const container = document.getElementById('shopping-list-container');
+            container.innerHTML = '<p class="empty-state">No shopping list generated yet. Select recipes and click "Generate Shopping List".</p>';
+        }
 
-        document.getElementById('importData').addEventListener('click', () => {
-            const importText = document.getElementById('importText').value;
-            try {
-                const importedRecipes = JSON.parse(importText);
-                recipes = [...recipes, ...importedRecipes];
-                localStorage.setItem('recipes', JSON.stringify(recipes));
-                displayRecipes();
-                alert('Recipes imported successfully!');
-                document.getElementById('importText').value = '';
-            } catch (error) {
-                alert('Error importing recipes. Please check the format and try again.');
+        // Print shopping list
+        function printShoppingList() {
+            const container = document.getElementById('shopping-list-container');
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>Shopping List</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; padding: 20px; }
+                            h1 { margin-bottom: 20px; }
+                            ul { list-style: none; padding: 0; }
+                            li { margin: 10px 0; padding: 10px; border-bottom: 1px solid #eee; }
+                            @media print { li { page-break-inside: avoid; } }
+                        </style>
+                    </head>
+                    <body>
+                        <h1>Shopping List</h1>
+                        ${container.innerHTML}
+                    </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        // Data management functions
+        function exportData() {
+            const data = JSON.stringify(recipes, null, 2);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'recipes.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const imported = JSON.parse(e.target.result);
+                        if (Array.isArray(imported)) {
+                            recipes = imported;
+                            saveRecipes();
+                            renderRecipes();
+                            alert('Recipes imported successfully!');
+                        } else {
+                            alert('Invalid file format. Please select a valid JSON file.');
+                        }
+                    } catch (error) {
+                        alert('Error importing file: ' + error.message);
+                    }
+                };
+                reader.readAsText(file);
             }
+        }
+
+        function clearAllData() {
+            if (confirm('Are you sure you want to delete all recipes? This action cannot be undone.')) {
+                recipes = [];
+                saveRecipes();
+                renderRecipes();
+                clearShoppingList();
+                alert('All data cleared successfully.');
+            }
+        }
+
+        // Save recipes to localStorage
+        function saveRecipes() {
+            localStorage.setItem('recipes', JSON.stringify(recipes));
+        }
+
+        // Metric system toggle
+        document.getElementById('metric-system').addEventListener('change', (e) => {
+            metricSystem = e.target.value;
+            renderRecipes();
         });
 
         // Initialize the app
-        displayRecipes();
+        renderRecipes();
     </script>
 </body>
 </html>
